@@ -1,6 +1,15 @@
 import styled from "styled-components"
+import { useParams } from "react-router-dom"
+import { useEffect } from "react";
+import axios from "axios";
 
 export default function SuccessPage() {
+
+    useEffect( () => {
+        
+
+
+}   ,[])
 
     return (
         <PageContainer>

@@ -15,7 +15,6 @@ export default function SessionsPage() {
         const promise = axios.get(URL);
 
         promise.then(resposta => {
-
             const filme = resposta.data;
             setInfoFilme(filme);
             const sessoesFilme = resposta.data.days;
@@ -36,12 +35,13 @@ export default function SessionsPage() {
                     <SessionContainer key={sessao.id}>
                         <div>{sessao.weekday} - {sessao.date}</div>
                         <ButtonsContainer>
-                            <StyledLink to={`/assentos/${sessao.showtimes[0].id}`}>
-                                <button><p>{sessao.showtimes[0].name}</p></button>
-                            </StyledLink>
-                            <StyledLink to={`/assentos/${sessao.showtimes[1].id}`}>
-                                <button><p>{sessao.showtimes[1].name}</p></button>
-                            </StyledLink>
+                            {sessao.showtimes.map(showtime => (
+                                <StyledLink to={`/assentos/${showtime.id}`} key={showtime.id}>
+                                    <button>
+                                        <p>{showtime.name}</p>
+                                    </button>
+                                </StyledLink>
+                            ))}
                         </ButtonsContainer>
                     </SessionContainer>
                 )}
@@ -151,6 +151,6 @@ const FooterContainer = styled.div`
         }
     }
 `
-const StyledLink = styled(Link) `
+const StyledLink = styled(Link)`
     text-decoration: none;
 `

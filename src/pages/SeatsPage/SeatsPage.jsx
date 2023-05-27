@@ -1,31 +1,77 @@
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom"
 import styled from "styled-components"
+import axios from "axios";
 
 export default function SeatsPage() {
 
+    const parametro = useParams();
+    const [movie, setMovie] = useState(undefined);
+    const [place, setPlace] = useState(undefined);
+    const [isSelected, setIsSelected] = useState([]);
+
+    useEffect(() => {
+        const URL = `https://mock-api.driven.com.br/api/v8/cineflex/showtimes/${parametro.idSessao}/seats`;
+        const promise = axios.get(URL);
+        promise.then(resposta => {
+            console.log(resposta.data.seats);
+            const movieInfo = resposta.data;
+            setMovie(movieInfo);
+            const places = resposta.data.seats;
+            setPlace(places);
+        });
+
+
+    }, [])
+
+    if (movie === undefined) {
+        return <div>Carregando...</div>;
+    }
+
+    function select() {
+        const arraySelected = [...isSelected, place.id]
+        setIsSelected(arraySelected);
+    }
     return (
         <PageContainer>
             Selecione o(s) assento(s)
-
             <SeatsContainer>
-                <SeatItem>01</SeatItem>
-                <SeatItem>02</SeatItem>
-                <SeatItem>03</SeatItem>
-                <SeatItem>04</SeatItem>
-                <SeatItem>05</SeatItem>
+                {place.map(seat => {
+                    if (seat.isAvailable === true) {
+                        if (isSelected === [place.id]) {
+                            return (<Available key={seat.name} onClick={select}>
+                                {seat.name}
+                            </Available>
+                            )
+                        } else {
+                            return (<Select key={seat.name} >
+                                {seat.name}
+                            </Select>
+                            )
+                        }                        
+                    } else {
+                        return (
+                            <Unavailable key={seat.name}>
+                                {seat.name}
+                            </Unavailable>
+                        )
+                    }
+                }
+                )}
             </SeatsContainer>
 
             <CaptionContainer>
                 <CaptionItem>
-                    <CaptionCircle />
-                    Selecionado
+                    <Select></Select>
+                    <p>Selecionado</p>
                 </CaptionItem>
                 <CaptionItem>
-                    <CaptionCircle />
-                    Disponível
+                    <Available></Available>
+                    <p>Disponível</p>
                 </CaptionItem>
                 <CaptionItem>
-                    <CaptionCircle />
-                    Indisponível
+                    <Unavailable></Unavailable>
+                    <p>Indisponível</p>
                 </CaptionItem>
             </CaptionContainer>
 
@@ -41,11 +87,11 @@ export default function SeatsPage() {
 
             <FooterContainer>
                 <div>
-                    <img src={"https://br.web.img2.acsta.net/pictures/22/05/16/17/59/5165498.jpg"} alt="poster" />
+                    <img src={movie.movie.posterURL} alt="poster" />
                 </div>
                 <div>
-                    <p>Tudo em todo lugar ao mesmo tempo</p>
-                    <p>Sexta - 14h00</p>
+                    <p>{movie.movie.title}</p>
+                    <p>{movie.day.weekday} - {movie.name}</p>
                 </div>
             </FooterContainer>
 
@@ -94,32 +140,32 @@ const CaptionContainer = styled.div`
     width: 300px;
     justify-content: space-between;
     margin: 20px;
-`
-const CaptionCircle = styled.div`
-    border: 1px solid blue;         // Essa cor deve mudar
-    background-color: lightblue;    // Essa cor deve mudar
-    height: 25px;
-    width: 25px;
-    border-radius: 25px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 5px 3px;
+
+    div {
+        
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+
+        
+    }
+    
 `
 const CaptionItem = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    font-size: 12px;
+
+        p {
+        font-size: 13px;
+        font-weight: 400;
+    }
 `
 const SeatItem = styled.div`
-    border: 1px solid blue;         // Essa cor deve mudar
-    background-color: lightblue;    // Essa cor deve mudar
     height: 25px;
     width: 25px;
     border-radius: 25px;
     font-family: 'Roboto';
-    font-size: 11px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -162,4 +208,44 @@ const FooterContainer = styled.div`
             }
         }
     }
+`
+
+const Select = styled.div`
+    height: 25px;
+    width: 25px;
+    border-radius: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 5px 3px;
+    border: 1px solid #0E7D71;
+    background-color: #1AAE9E;
+    font-size: 11px;
+    font-weight: 400;
+`
+const Available = styled.div`
+height: 25px;
+        width: 25px;
+        border-radius: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 5px 3px;
+    border: 1px solid #7B8B99;
+    background-color: #C3CFD9;
+    font-size: 11px;
+    font-weight: 400;
+`
+const Unavailable = styled.div`
+height: 25px;
+        width: 25px;
+        border-radius: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 5px 3px;
+     border: 1px solid #F7C52B;
+    background-color: #FBE192;
+    font-size: 11px;
+    font-weight: 400;
 `
