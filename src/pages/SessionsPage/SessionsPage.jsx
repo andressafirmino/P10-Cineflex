@@ -2,19 +2,23 @@ import { useParams } from "react-router-dom"
 import styled from "styled-components"
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
-export default function SessionsPage(props) {
+export default function SessionsPage() {
 
-    const [poster, title] = props;
+    const [infoFilme, setInfoFilme] = useState(undefined);
     const [sessoes, setSessoes] = useState(undefined);
     const parametros = useParams();
 
     useEffect(() => {
         const URL = `https://mock-api.driven.com.br/api/v8/cineflex/movies/${parametros.idFilme}/showtimes`
         const promise = axios.get(URL);
+
         promise.then(resposta => {
+
+            const filme = resposta.data;
+            setInfoFilme(filme);
             const sessoesFilme = resposta.data.days;
-            const sessaoFilme = resposta.data.days.showtimes;
             setSessoes(sessoesFilme);
         });
         promise.catch();
@@ -32,21 +36,28 @@ export default function SessionsPage(props) {
                     <SessionContainer key={sessao.id}>
                         <div>{sessao.weekday} - {sessao.date}</div>
                         <ButtonsContainer>
-                            <button><p>{sessao.showtimes[0].name}</p></button>
-                            <button><p>{sessao.showtimes[1].name}</p></button>
+                            <StyledLink to={`/assentos/${sessao.showtimes[0].id}`}>
+                                <button><p>{sessao.showtimes[0].name}</p></button>
+                            </StyledLink>
+                            <StyledLink to={`/assentos/${sessao.showtimes[1].id}`}>
+                                <button><p>{sessao.showtimes[1].name}</p></button>
+                            </StyledLink>
                         </ButtonsContainer>
                     </SessionContainer>
                 )}
             </div>
 
-            <FooterContainer>
+
+            <FooterContainer key={infoFilme.id}>
                 <div>
-                    <img src={poster} alt="poster" />
+                    <img src={infoFilme.posterURL} alt="poster" />
                 </div>
                 <div>
-                    <p>{title}</p>
+                    <p>{infoFilme.title}</p>
                 </div>
             </FooterContainer>
+
+
 
         </PageContainer>
     )
@@ -94,7 +105,7 @@ const ButtonsContainer = styled.div`
         display: flex;
         justify-content: center;
         align-items: center;
-
+        
         p {
             font-size: 18px;
             font-weight: 400;
@@ -139,4 +150,7 @@ const FooterContainer = styled.div`
             }
         }
     }
+`
+const StyledLink = styled(Link) `
+    text-decoration: none;
 `

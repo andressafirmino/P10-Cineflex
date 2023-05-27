@@ -15,7 +15,6 @@ export default function HomePage() {
         const promise = axios.get(URL);
         promise.then(resposta => { 
         setFilmes(resposta.data);
-        console.log(resposta.data)
     });
         promise.catch();
     }
@@ -29,9 +28,9 @@ export default function HomePage() {
 
             <ListContainer>
                 {filmes.map( filme => (
-                <Link to={`/sessoes/${filme.id}`} >
-                <MovieContainer >
-                    <img src={filme.posterURL} alt="poster" key={filme.id} poster={filme.posterURL} title={filme.title}/>
+                <Link to={`/sessoes/${filme.id}`} key={filme.id}>
+                <MovieContainer>
+                    <img src={filme.posterURL} alt="poster"  />
                 </MovieContainer>
                 </Link>)
                 )}
