@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom"
+import { useParams, useNavigate} from "react-router-dom"
 import styled from "styled-components"
 import axios from "axios";
 
@@ -9,12 +9,14 @@ export default function SeatsPage() {
     const [movie, setMovie] = useState(undefined);
     const [place, setPlace] = useState(undefined);
     const [isSelected, setIsSelected] = useState([]);
+    const [name, setName] = useState('');
+    const [cpf, setCpf] = useState('');
+    const navigate = useNavigate();
 
     useEffect(() => {
         const URL = `https://mock-api.driven.com.br/api/v8/cineflex/showtimes/${parametro.idSessao}/seats`;
         const promise = axios.get(URL);
         promise.then(resposta => {
-            console.log(resposta.data.seats);
             const movieInfo = resposta.data;
             setMovie(movieInfo);
             const places = resposta.data.seats;
@@ -28,9 +30,29 @@ export default function SeatsPage() {
         return <div>Carregando...</div>;
     }
 
-    function select() {
-        const arraySelected = [...isSelected, place.id]
-        setIsSelected(arraySelected);
+    function select(id) {
+        const newArray = [...isSelected, id];
+        setIsSelected(newArray);
+    }
+    function desselect(id) {
+        const newArray = [... isSelected];
+        let position = newArray.indexOf(id);
+        let remove = newArray.splice(position, 1);   
+        setIsSelected(newArray);
+    }
+    function send(e) {
+        e.preventDefault();
+
+        const reserve = {
+            ids: isSelected,
+            name: name,
+            cpf: cpf
+        }
+
+        const URL_API = 'https://mock-api.driven.com.br/api/v8/cineflex/seats/book-many';
+        const promise = axios.post(URL_API, reserve);
+        promise.then(resposta => navigate('/sucesso'));
+        promise.catch(() => alert('não foi'));
     }
     return (
         <PageContainer>
@@ -38,20 +60,20 @@ export default function SeatsPage() {
             <SeatsContainer>
                 {place.map(seat => {
                     if (seat.isAvailable === true) {
-                        if (isSelected === [place.id]) {
-                            return (<Available key={seat.name} onClick={select}>
+                        if (isSelected.includes(seat.id)=== false) {
+                            return (<Available key={seat.name} onClick={() => select(seat.id)}>
                                 {seat.name}
                             </Available>
                             )
                         } else {
-                            return (<Select key={seat.name} >
+                            return (<Select key={seat.name} onClick={() => desselect(seat.id)} >
                                 {seat.name}
                             </Select>
                             )
                         }                        
                     } else {
                         return (
-                            <Unavailable key={seat.name}>
+                            <Unavailable key={seat.name} onClick={() => alert("Esse assento não está disponível")}>
                                 {seat.name}
                             </Unavailable>
                         )
@@ -75,14 +97,24 @@ export default function SeatsPage() {
                 </CaptionItem>
             </CaptionContainer>
 
-            <FormContainer>
-                Nome do Comprador:
-                <input placeholder="Digite seu nome..." />
+            <FormContainer onSubmit={send}>
+                <label htmlFor="nome">Nome do Comprador:</label>
+                <input type="text" 
+                id="nome" 
+                placeholder="Digite seu nome..." 
+                value={name} 
+                onChange={(e) => setName(e.target.value)}
+                required/>
 
-                CPF do Comprador:
-                <input placeholder="Digite seu CPF..." />
+                <label htmlFor="CPF">CPF do Comprador:</label>
+                <input type="text" 
+                id="CPF" 
+                placeholder="Digite seu CPF..." 
+                value={cpf} 
+                onChange={(e) => setCpf(e.target.value)}
+                required/>
 
-                <button>Reservar Assento(s)</button>
+                <button type="submit"><p>Reservar Assento(s)</p></button>
             </FormContainer>
 
             <FooterContainer>
@@ -120,7 +152,7 @@ const SeatsContainer = styled.div`
     justify-content: center;
     margin-top: 20px;
 `
-const FormContainer = styled.div`
+const FormContainer = styled.form`
     width: calc(100vw - 40px); 
     display: flex;
     flex-direction: column;
@@ -128,10 +160,38 @@ const FormContainer = styled.div`
     margin: 20px 0;
     font-size: 18px;
     button {
+        width: 225px;
+        height: 42px;
+        border-radius: 3px;
+        background-color: #E8833A;
+        border: none;
         align-self: center;
+        margin-top: 57px;
+
+        p {
+            font-size: 18px;
+            font-weight: 400;
+            color: #FFFFFF;
+        }
     }
     input {
         width: calc(100vw - 60px);
+        height: 51px;
+        padding-left: 18px;
+        border: 1px solid #D5D5D5;
+        border-radius: 3px;
+
+        &::placeholder {
+            font-size: 18px;
+            font-weight: 400;
+            font-style: italic;
+            color: #AFAFAF;          
+        }
+    }
+    label {
+        font-size: 18px;
+        font-weight: 400;
+        margin: 5px 0;
     }
 `
 const CaptionContainer = styled.div`
@@ -139,7 +199,7 @@ const CaptionContainer = styled.div`
     flex-direction: row;
     width: 300px;
     justify-content: space-between;
-    margin: 20px;
+    margin:  20px 20px 41px;
 
     div {
         
