@@ -2,40 +2,47 @@ import { useParams } from "react-router-dom"
 import styled from "styled-components"
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import {FaArrowLeft } from 'react-icons/fa';
 
 export default function SessionsPage() {
 
-    const [infoFilme, setInfoFilme] = useState(undefined);
-    const [sessoes, setSessoes] = useState(undefined);
-    const parametros = useParams();
+    const [movieInfo, setMovieInfo] = useState(undefined);
+    const [sessions, setSessions] = useState(undefined);
+    const param = useParams();
+    const navigate = useNavigate();
 
     useEffect(() => {
-        const URL = `https://mock-api.driven.com.br/api/v8/cineflex/movies/${parametros.idFilme}/showtimes`
+        const URL = `https://mock-api.driven.com.br/api/v8/cineflex/movies/${param.idFilme}/showtimes`
         const promise = axios.get(URL);
 
-        promise.then(resposta => {
-            const filme = resposta.data;
-            setInfoFilme(filme);
-            const sessoesFilme = resposta.data.days;
-            setSessoes(sessoesFilme);
+        promise.then(response => {
+            const movie = response.data;
+            setMovieInfo(movie);
+            const moviesSessions = response.data.days;
+            setSessions(moviesSessions);
         });
         promise.catch((erro) => alert(erro.response.data));
     }, [])
 
-    if (sessoes === undefined) {
-        return <div>Carregando...</div>;
+    if(movieInfo === undefined) {
+        return <Loading src='https://cineflex-hardh7xm0-thalesgomest.vercel.app/static/media/loading.961a48fb.gif' />;
     }
 
+    function back() {
+        navigate(-1);
+    }
     return (
+        <>
+        <Back onClick={back} data-test="go-home-header-btn"></Back>
         <PageContainer>
             Selecione o horário
             <div>
-                {sessoes.map(sessao =>
-                    <SessionContainer key={sessao.id} data-test="movie-day">
-                        <div>{sessao.weekday} - {sessao.date}</div>
+                {sessions.map(session =>
+                    <SessionContainer key={session.id} data-test="movie-day">
+                        <div>{session.weekday} - {session.date}</div>
                         <ButtonsContainer>
-                            {sessao.showtimes.map(showtime => (
+                            {session.showtimes.map(showtime => (
                                 <StyledLink to={`/assentos/${showtime.id}`} key={showtime.id}>
                                     <button data-test="showtime">
                                         <p>{showtime.name}</p>
@@ -48,21 +55,37 @@ export default function SessionsPage() {
             </div>
 
 
-            <FooterContainer key={infoFilme.id} data-test="footer">
+            <FooterContainer key={movieInfo.id} data-test="footer">
                 <div>
-                    <img src={infoFilme.posterURL} alt="poster" />
+                    <img src={movieInfo.posterURL} alt="poster" />
                 </div>
                 <div>
-                    <p>{infoFilme.title}</p>
+                    <p>{movieInfo.title}</p>
                 </div>
             </FooterContainer>
 
 
 
         </PageContainer>
+        </>
     )
 }
 
+const Loading = styled.img `
+    width: 60%; 
+    display: block;
+    margin: 100px auto;
+`
+const Back = styled(FaArrowLeft) `
+    width: 34px;
+    height: 34px;
+    font-size: 34px;
+    font-weight: 400;
+    color: #293845;
+    position: fixed;
+    left: 15px;
+    top: 15px;
+`
 const PageContainer = styled.div`
     display: flex;
     flex-direction: column;

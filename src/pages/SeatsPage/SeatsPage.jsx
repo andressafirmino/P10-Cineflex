@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate} from "react-router-dom"
+import { useParams, useNavigate } from "react-router-dom"
 import styled from "styled-components"
 import axios from "axios";
+import {FaArrowLeft } from 'react-icons/fa';
 
 export default function SeatsPage(props) {
 
-    const {movie, setMovie, isSelected, setIsSelected, name, setName, cpf, setCpf, index, setIndex} = props;
-    const parametro = useParams();
+    const { movie, setMovie, isSelected, setIsSelected, name, setName, cpf, setCpf, index, setIndex } = props;
+    const param = useParams();
     const [place, setPlace] = useState(undefined);
     const navigate = useNavigate();
 
     useEffect(() => {
-        const URL = `https://mock-api.driven.com.br/api/v8/cineflex/showtimes/${parametro.idSessao}/seats`;
+        const URL = `https://mock-api.driven.com.br/api/v8/cineflex/showtimes/${param.idSessao}/seats`;
         const promise = axios.get(URL);
         promise.then(resposta => {
             const movieInfo = resposta.data;
@@ -24,7 +25,7 @@ export default function SeatsPage(props) {
     }, [])
 
     if (movie === undefined) {
-        return <div>Carregando...</div>;
+        return <Loading src='https://cineflex-hardh7xm0-thalesgomest.vercel.app/static/media/loading.961a48fb.gif' />;
     }
 
     function select(id, name) {
@@ -35,13 +36,13 @@ export default function SeatsPage(props) {
         console.log(newId);
     }
     function desselect(id, name) {
-        const newArray = [... isSelected];
+        const newArray = [...isSelected];
         let position = newArray.indexOf(id);
-        let remove = newArray.splice(position, 1);   
+        let remove = newArray.splice(position, 1);
         setIsSelected(newArray);
-        const newId = [... index];
+        const newId = [...index];
         let positionId = newId.indexOf(name);
-        let removeID = newId.splice(positionId, 1);   
+        let removeID = newId.splice(positionId, 1);
         setIndex(newId);
     }
     function send(e) {
@@ -58,83 +59,104 @@ export default function SeatsPage(props) {
         promise.then(() => navigate('/sucesso'));
         promise.catch((erro) => alert(erro.response.data));
     }
+    function back() {
+        navigate(-1);
+    }
     return (
-        <PageContainer>
-            Selecione o(s) assento(s)
-            <SeatsContainer>
-                {place.map(seat => {
-                    if (seat.isAvailable === true) {
-                        if (index.includes(seat.name) === false) {
-                            return (<Available key={seat.name} onClick={() => select(seat.id, seat.name)} data-test="seat">
-                                {seat.name}
-                            </Available>
-                            )
+        <>
+            <Back onClick={back} data-test="go-home-header-btn"></Back>
+            <PageContainer>
+                Selecione o(s) assento(s)
+                <SeatsContainer>
+                    {place.map(seat => {
+                        if (seat.isAvailable === true) {
+                            if (index.includes(seat.name) === false) {
+                                return (<Available key={seat.name} onClick={() => select(seat.id, seat.name)} data-test="seat">
+                                    {seat.name}
+                                </Available>
+                                )
+                            } else {
+                                return (<Select key={seat.name} onClick={() => desselect(seat.id, seat.name)} data-test="seat">
+                                    {seat.name}
+                                </Select>
+                                )
+                            }
                         } else {
-                            return (<Select key={seat.name} onClick={() => desselect(seat.id, seat.name)} data-test="seat">
-                                {seat.name}
-                            </Select>
+                            return (
+                                <Unavailable key={seat.name} onClick={() => alert("Esse assento não está disponível")} data-test="seat">
+                                    {seat.name}
+                                </Unavailable>
                             )
-                        }                        
-                    } else {
-                        return (
-                            <Unavailable key={seat.name} onClick={() => alert("Esse assento não está disponível")} data-test="seat">
-                                {seat.name}
-                            </Unavailable>
-                        )
+                        }
                     }
-                }
-                )}
-            </SeatsContainer>
+                    )}
+                </SeatsContainer>
 
-            <CaptionContainer>
-                <CaptionItem>
-                    <Select></Select>
-                    <p>Selecionado</p>
-                </CaptionItem>
-                <CaptionItem>
-                    <Available></Available>
-                    <p>Disponível</p>
-                </CaptionItem>
-                <CaptionItem>
-                    <Unavailable></Unavailable>
-                    <p>Indisponível</p>
-                </CaptionItem>
-            </CaptionContainer>
+                <CaptionContainer>
+                    <CaptionItem>
+                        <Select></Select>
+                        <p>Selecionado</p>
+                    </CaptionItem>
+                    <CaptionItem>
+                        <Available></Available>
+                        <p>Disponível</p>
+                    </CaptionItem>
+                    <CaptionItem>
+                        <Unavailable></Unavailable>
+                        <p>Indisponível</p>
+                    </CaptionItem>
+                </CaptionContainer>
 
-            <FormContainer onSubmit={send}>
-                <label htmlFor="nome">Nome do Comprador:</label>
-                <input type="text" 
-                id="nome" 
-                placeholder="Digite seu nome..." 
-                value={name} 
-                onChange={(e) => setName(e.target.value)}
-                required data-test="client-name"/>
+                <FormContainer onSubmit={send}>
+                    <label htmlFor="nome">Nome do Comprador:</label>
+                    <input type="text"
+                        id="nome"
+                        placeholder="Digite seu nome..."
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required data-test="client-name" />
 
-                <label htmlFor="CPF">CPF do Comprador:</label>
-                <input type="text" 
-                id="CPF" 
-                placeholder="Digite seu CPF..." 
-                value={cpf} 
-                onChange={(e) => setCpf(e.target.value)}
-                required data-test="client-cpf"/>
+                    <label htmlFor="CPF">CPF do Comprador:</label>
+                    <input type="text"
+                        id="CPF"
+                        placeholder="Digite seu CPF..."
+                        value={cpf}
+                        onChange={(e) => setCpf(e.target.value)}
+                        required data-test="client-cpf" />
 
-                <button type="submit" data-test="book-seat-btn"><p>Reservar Assento(s)</p></button>
-            </FormContainer>
+                    <button type="submit" data-test="book-seat-btn"><p>Reservar Assento(s)</p></button>
+                </FormContainer>
 
-            <FooterContainer data-test="footer">
-                <div>
-                    <img src={movie.movie.posterURL} alt="poster" />
-                </div>
-                <div>
-                    <p>{movie.movie.title}</p>
-                    <p>{movie.day.weekday} - {movie.name}</p>
-                </div>
-            </FooterContainer>
+                <FooterContainer data-test="footer">
+                    <div>
+                        <img src={movie.movie.posterURL} alt="poster" />
+                    </div>
+                    <div>
+                        <p>{movie.movie.title}</p>
+                        <p>{movie.day.weekday} - {movie.name}</p>
+                    </div>
+                </FooterContainer>
 
-        </PageContainer>
+            </PageContainer>
+        </>
     )
 }
 
+const Loading = styled.img`
+    width: 60%; 
+    display: block;
+    margin: 100px auto;
+`
+const Back = styled(FaArrowLeft)`
+    width: 34px;
+    height: 34px;
+    font-size: 34px;
+    font-weight: 400;
+    color: #293845;
+    position: fixed;
+    left: 15px;
+    top: 15px;
+`
 const PageContainer = styled.div`
     display: flex;
     flex-direction: column;

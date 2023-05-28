@@ -1,10 +1,18 @@
 import styled from "styled-components"
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import {FaArrowLeft } from 'react-icons/fa';
 
 export default function SuccessPage(props) {
 
     const {movie, index, name, cpf} = props;
+    const navigate = useNavigate();
+
+    function back() {
+        navigate(-1);
+    }
     return (
+        <>
+        <Back onClick={back} data-test="go-home-header-btn"></Back>
         <PageContainer>
             <h1>Pedido feito <br /> com sucesso!</h1>
 
@@ -32,9 +40,25 @@ export default function SuccessPage(props) {
 
             <Link to="/" data-test="go-home-btn"><button><p>Voltar para Home</p></button></Link>
         </PageContainer>
+        </>
     )
 }
 
+const Loading = styled.img`
+    width: 60%; 
+    display: block;
+    margin: 100px auto;
+`
+const Back = styled(FaArrowLeft)`
+    width: 34px;
+    height: 34px;
+    font-size: 34px;
+    font-weight: 400;
+    color: #293845;
+    position: fixed;
+    left: 15px;
+    top: 15px;
+`
 const PageContainer = styled.div`
     display: flex;
     flex-direction: column;

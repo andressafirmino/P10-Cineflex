@@ -5,32 +5,29 @@ import { Link } from "react-router-dom";
 
 export default function HomePage() {
 
-    const [filmes, setFilmes] = useState([]);
+    const [movies, setMovies] = useState([]);
 
-    useEffect(pegarFilmes, []);
-
-    function pegarFilmes() {
-
+    useEffect(() => {
         const URL = 'https://mock-api.driven.com.br/api/v8/cineflex/movies';
         const promise = axios.get(URL);
-        promise.then(resposta => { 
-        setFilmes(resposta.data);
+        promise.then(response => { 
+        setMovies(response.data);
     });
         promise.catch((erro) => alert(erro.response.data));
-    }
+    }, []);
 
-    if(filmes === []) {
-        return <div>Carregando...</div>;
+    if(movies.length === 0) {
+        return <Loading src='https://cineflex-hardh7xm0-thalesgomest.vercel.app/static/media/loading.961a48fb.gif' />;
     }
     return (
         <PageContainer>
             Selecione o filme
 
             <ListContainer>
-                {filmes.map( filme => (
-                <Link to={`/sessoes/${filme.id}`} key={filme.id}>
+                {movies.map( movie => (
+                <Link to={`/sessoes/${movie.id}`} key={movie.id}>
                 <MovieContainer data-test="movie">
-                    <img src={filme.posterURL} alt="poster"  />
+                    <img src={movie.posterURL} alt="poster"  />
                 </MovieContainer>
                 </Link>)
                 )}
@@ -40,6 +37,11 @@ export default function HomePage() {
     )
 }
 
+const Loading = styled.img `
+    width: 60%; 
+    display: block;
+    margin: 100px auto;
+`
 const PageContainer = styled.div`
     display: flex;
     flex-direction: column;
