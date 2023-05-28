@@ -118,7 +118,7 @@ export default function SeatsPage(props) {
                 onChange={(e) => setCpf(e.target.value)}
                 required data-test="client-cpf"/>
 
-                <button type="submit"><p>Reservar Assento(s)</p></button>
+                <button type="submit" data-test="book-seat-btn"><p>Reservar Assento(s)</p></button>
             </FormContainer>
 
             <FooterContainer data-test="footer">
