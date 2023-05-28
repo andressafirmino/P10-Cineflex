@@ -1,40 +1,36 @@
 import styled from "styled-components"
-import { useParams } from "react-router-dom"
-import { useEffect } from "react";
-import axios from "axios";
+import { Link } from "react-router-dom";
 
-export default function SuccessPage() {
+export default function SuccessPage(props) {
 
-    useEffect( () => {
-        
-
-
-}   ,[])
-
+    const {movie, index, name, cpf} = props;
     return (
         <PageContainer>
             <h1>Pedido feito <br /> com sucesso!</h1>
 
-            <TextContainer>
-                <strong><p>Filme e sessão</p></strong>
-                <p>Tudo em todo lugar ao mesmo tempo</p>
-                <p>03/03/2023 - 14:00</p>
+            <TextContainer data-test="movie-info">
+                <strong>Filme e sessão</strong>
+                <p>{movie.movie.title}</p>
+                <p>{movie.day.date} - {movie.name}</p>
             </TextContainer>
 
-            <TextContainer>
-                <strong><p>Ingressos</p></strong>
-                <p>Assento 01</p>
-                <p>Assento 02</p>
-                <p>Assento 03</p>
+            <TextContainer data-test="seats-info">
+                <strong>Ingressos</strong>
+                
+                {index.map((seat, i) => {
+                    return <p key={i}>Assento {seat}</p>
+                })}
+                
+                
             </TextContainer>
 
-            <TextContainer>
-                <strong><p>Comprador</p></strong>
-                <p>Nome: Letícia Chijo</p>
-                <p>CPF: 123.456.789-10</p>
+            <TextContainer data-test="client-info">
+                <strong>Comprador</strong>
+                <p>Nome: {name}</p>
+                <p>CPF: {cpf}</p>
             </TextContainer>
 
-            <button>Voltar para Home</button>
+            <Link to="/" data-test="go-home-btn"><button><p>Voltar para Home</p></button></Link>
         </PageContainer>
     )
 }
@@ -53,7 +49,18 @@ const PageContainer = styled.div`
         text-decoration: none;
     }
     button {
-        margin-top: 50px;
+        width: 225px;
+        height: 42px;
+        background-color: #E8833A;
+        border-radius: 3px;
+        border: none;
+        margin-top: 62px;
+
+        p {
+            font-size: 18px;
+            font-weight: 400;
+            color: #FFFFFF;
+        }
     }
     h1 {
         font-family: 'Roboto';
@@ -65,6 +72,7 @@ const PageContainer = styled.div`
         align-items: center;
         text-align: center;
         color: #247A6B;
+        margin-bottom: 20px;
     }
 `
 const TextContainer = styled.div`
@@ -72,9 +80,17 @@ const TextContainer = styled.div`
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    margin-top: 30px;
+    margin-top: 33px;
     strong {
-        font-weight: bold;
+        font-size: 24px;
+        font-weight: 700;
+        color: #293845;
+        margin-bottom: 15px;
+    }
+    p {
+        font-size: 22px;
+        font-weight: 400;
+        color:#293845;
         margin-bottom: 10px;
     }
 `

@@ -20,7 +20,7 @@ export default function SessionsPage() {
             const sessoesFilme = resposta.data.days;
             setSessoes(sessoesFilme);
         });
-        promise.catch();
+        promise.catch((erro) => alert(erro.response.data));
     }, [])
 
     if (sessoes === undefined) {
@@ -32,12 +32,12 @@ export default function SessionsPage() {
             Selecione o horário
             <div>
                 {sessoes.map(sessao =>
-                    <SessionContainer key={sessao.id}>
+                    <SessionContainer key={sessao.id} data-test="movie-day">
                         <div>{sessao.weekday} - {sessao.date}</div>
                         <ButtonsContainer>
                             {sessao.showtimes.map(showtime => (
                                 <StyledLink to={`/assentos/${showtime.id}`} key={showtime.id}>
-                                    <button>
+                                    <button data-test="showtime">
                                         <p>{showtime.name}</p>
                                     </button>
                                 </StyledLink>
@@ -48,7 +48,7 @@ export default function SessionsPage() {
             </div>
 
 
-            <FooterContainer key={infoFilme.id}>
+            <FooterContainer key={infoFilme.id} data-test="footer">
                 <div>
                     <img src={infoFilme.posterURL} alt="poster" />
                 </div>

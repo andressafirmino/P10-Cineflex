@@ -3,14 +3,11 @@ import { useParams, useNavigate} from "react-router-dom"
 import styled from "styled-components"
 import axios from "axios";
 
-export default function SeatsPage() {
+export default function SeatsPage(props) {
 
+    const {movie, setMovie, isSelected, setIsSelected, name, setName, cpf, setCpf, index, setIndex} = props;
     const parametro = useParams();
-    const [movie, setMovie] = useState(undefined);
     const [place, setPlace] = useState(undefined);
-    const [isSelected, setIsSelected] = useState([]);
-    const [name, setName] = useState('');
-    const [cpf, setCpf] = useState('');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -19,7 +16,7 @@ export default function SeatsPage() {
         promise.then(resposta => {
             const movieInfo = resposta.data;
             setMovie(movieInfo);
-            const places = resposta.data.seats;
+            const places = movieInfo.seats;
             setPlace(places);
         });
 
@@ -30,15 +27,22 @@ export default function SeatsPage() {
         return <div>Carregando...</div>;
     }
 
-    function select(id) {
+    function select(id, name) {
+        let newId = [...index, name]
+        setIndex(newId);
         const newArray = [...isSelected, id];
         setIsSelected(newArray);
+        console.log(newId);
     }
-    function desselect(id) {
+    function desselect(id, name) {
         const newArray = [... isSelected];
         let position = newArray.indexOf(id);
         let remove = newArray.splice(position, 1);   
         setIsSelected(newArray);
+        const newId = [... index];
+        let positionId = newId.indexOf(name);
+        let removeID = newId.splice(positionId, 1);   
+        setIndex(newId);
     }
     function send(e) {
         e.preventDefault();
@@ -51,8 +55,8 @@ export default function SeatsPage() {
 
         const URL_API = 'https://mock-api.driven.com.br/api/v8/cineflex/seats/book-many';
         const promise = axios.post(URL_API, reserve);
-        promise.then(resposta => navigate('/sucesso'));
-        promise.catch(() => alert('não foi'));
+        promise.then(() => navigate('/sucesso'));
+        promise.catch((erro) => alert(erro.response.data));
     }
     return (
         <PageContainer>
@@ -60,20 +64,20 @@ export default function SeatsPage() {
             <SeatsContainer>
                 {place.map(seat => {
                     if (seat.isAvailable === true) {
-                        if (isSelected.includes(seat.id)=== false) {
-                            return (<Available key={seat.name} onClick={() => select(seat.id)}>
+                        if (index.includes(seat.name) === false) {
+                            return (<Available key={seat.name} onClick={() => select(seat.id, seat.name)} data-test="seat">
                                 {seat.name}
                             </Available>
                             )
                         } else {
-                            return (<Select key={seat.name} onClick={() => desselect(seat.id)} >
+                            return (<Select key={seat.name} onClick={() => desselect(seat.id, seat.name)} data-test="seat">
                                 {seat.name}
                             </Select>
                             )
                         }                        
                     } else {
                         return (
-                            <Unavailable key={seat.name} onClick={() => alert("Esse assento não está disponível")}>
+                            <Unavailable key={seat.name} onClick={() => alert("Esse assento não está disponível")} data-test="seat">
                                 {seat.name}
                             </Unavailable>
                         )
@@ -104,7 +108,7 @@ export default function SeatsPage() {
                 placeholder="Digite seu nome..." 
                 value={name} 
                 onChange={(e) => setName(e.target.value)}
-                required/>
+                required data-test="client-name"/>
 
                 <label htmlFor="CPF">CPF do Comprador:</label>
                 <input type="text" 
@@ -112,12 +116,12 @@ export default function SeatsPage() {
                 placeholder="Digite seu CPF..." 
                 value={cpf} 
                 onChange={(e) => setCpf(e.target.value)}
-                required/>
+                required data-test="client-cpf"/>
 
                 <button type="submit"><p>Reservar Assento(s)</p></button>
             </FormContainer>
 
-            <FooterContainer>
+            <FooterContainer data-test="footer">
                 <div>
                     <img src={movie.movie.posterURL} alt="poster" />
                 </div>
