@@ -62,6 +62,14 @@ export default function SeatsPage(props) {
     function back() {
         navigate(-1);
     }
+    function validate(value) {
+        let validateCpf = value.replace(/\D/g,'');
+
+        if(validateCpf === '') {
+            return validateCpf;
+        }
+        return validateCpf;
+    }
     return (
         <>
             <Back onClick={back} data-test="go-home-header-btn"></Back>
@@ -118,9 +126,11 @@ export default function SeatsPage(props) {
 
                     <label htmlFor="CPF">CPF do Comprador:</label>
                     <input type="text"
-                        id="CPF"
+                        id="CPF" 
+                        minLength={11}
+                        maxLength={11}
                         placeholder="Digite seu CPF..."
-                        value={cpf}
+                        value={validate(cpf)}
                         onChange={(e) => setCpf(e.target.value)}
                         required data-test="client-cpf" />
 
@@ -308,6 +318,7 @@ const Select = styled.div`
     background-color: #1AAE9E;
     font-size: 11px;
     font-weight: 400;
+    cursor: pointer;
 `
 const Available = styled.div`
 height: 25px;
@@ -321,6 +332,7 @@ height: 25px;
     background-color: #C3CFD9;
     font-size: 11px;
     font-weight: 400;
+    cursor: pointer;
 `
 const Unavailable = styled.div`
 height: 25px;

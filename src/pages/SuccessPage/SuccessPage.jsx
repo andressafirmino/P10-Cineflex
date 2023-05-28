@@ -5,6 +5,8 @@ import {FaArrowLeft } from 'react-icons/fa';
 export default function SuccessPage(props) {
 
     const {movie, index, name, cpf} = props;
+    let strCpf = String(cpf);
+    console.log(strCpf);
     const navigate = useNavigate();
 
     function back() {
